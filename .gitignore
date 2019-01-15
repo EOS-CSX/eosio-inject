@@ -1,0 +1,8 @@
+# Private data files
+*.csx
+key.txt
+aliases.sh
+
+#Log files
+*.log
+
