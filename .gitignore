@@ -1,5 +1,5 @@
 # Private data files
-*.csx
+*.csv
 key.txt
 aliases.sh
 

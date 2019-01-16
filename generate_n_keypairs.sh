@@ -1,6 +1,6 @@
 #!/bin/bash
 INPUT_FILE=tlos_inject.csv
-NAME_PREFIX=csxdrop
+NAME_PREFIX=cbd
 
 # Create aliases
 shopt -s expand_aliases
@@ -8,13 +8,13 @@ source aliases.sh
 
 function generate_key () {
   # generate keys
-  cleos create key --to-console > key.txt
+  cleos_testnet create key --to-console > key.txt
   priv_key=`awk 'NR==1{print $3}' key.txt`
   pub_key=`awk 'NR==2{print $3}' key.txt`
-  name=${NAME_PREFIX}$1
+  name=${NAME_PREFIX}$2
   #echo $priv_key
   #echo $pub_key
-  echo $name $priv_key $pub_key $liquid $cpu $bw >> $INPUT_FILE
+  echo $1 $name $priv_key $pub_key $liquid $cpu $bw $ram >> $INPUT_FILE
   #`awk 'NR==2{print $3}' key.txt` + ' ' + `awk 'NR==1{print $3}' key.txt` >> keys.txt
 }
 
@@ -42,6 +42,7 @@ read -p "Reset key file and remove all previously generated keys?" -n 1 -r
 echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
+  cp $INPUT_FILE ./`date +%Y%m%d-%H%M%S`_${INPUT_FILE}
   rm $INPUT_FILE
 fi
 
@@ -60,13 +61,16 @@ read cpu
 echo "Amount of TELOS to transfer for bandwidth staking (net)?"
 read bw
 
+echo "Amount of kbytes of RAM to purchase for account?" 
+read ram
+
 # Loop to generate n keys
 for (( i=1; i<=$num_keys; i++ ))
 #for i in $(seq -f "%05g" 1 $num_keys)
 do
-  name_postfix=$(printf "%05g\n" $i)
-  name_postfix=$(echo "$name_postfix" | tr 0 o)
-  generate_key $name_postfix
+  #name_postfix=$(printf "%05g\n" $i)
+  name_postfix=`cat /dev/urandom | tr -cd 'a-z1-5' | head -c 9`
+  generate_key $i $name_postfix
   ProgressBar $i $num_keys
 done
 
